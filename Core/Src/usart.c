@@ -21,6 +21,8 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "cli.h"
+
 uint8_t uartRxBuff[100] = {0};
 uint8_t rxBuff = 0;
 /* USER CODE END 0 */
@@ -135,6 +137,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
       uartRxBuff[rxBuffPointer] = 0;
       rxBuffPointer = 0;
+      cliHandler(uartRxBuff);
     }
     
     HAL_UART_Receive_IT(&huart1, (uint8_t *)&rxBuff, 1);

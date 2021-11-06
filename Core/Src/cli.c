@@ -17,14 +17,12 @@
 
 #include "cli.h"
 #include "main.h"
-#include "usbd_cdc_if.h"
-#include "iosettings.h"
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "gui/stapp.h"
+#include "common.h"
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 #define MAX_COMMAND_LENGHT 32
@@ -41,57 +39,22 @@ uint8_t cliTxBuffer[APP_TX_DATA_SIZE] = {0};
     }
 
 const clicmd_t cliCmdTable[] = {
-    CLI_COMMAND_DEF("dfu", "switch to DFU mode", "[name]", cliSetDFU),
-    CLI_COMMAND_DEF("get_status", "get variable value", "[name]", cliGetStatus),
-    CLI_COMMAND_DEF("get_channels", "get channels value", "[name]", cliGetChannels),
-    CLI_COMMAND_DEF("set_screen", "Set active screen", "[name] <screen>", cliSetScreen),
     CLI_COMMAND_DEF("status", "get current status", "[name]", cliGetStatus)};
 
 void cliGet(const char *cmdName, const char *cmdline)
 {
-    cliPrint("Response \r\n");
+    cliPrint("Response");
 
     return;
 }
 
 void cliGetStatus(const char *cmdName, const char *cmdline)
 {
-    cliPrint("Ready \r\n");
+    cliPrint("Ready");
 
     return;
 }
 
-void cliGetChannels(const char *cmdName, const char *cmdline)
-{
-    cliPrint("Channels value is here \r\n");
-
-    return;
-}
-
-void cliSetScreen(const char *name, const char *cmdline)
-{
-    char *format = "%d";
-    uint16_t screenNumber = 0;
-
-    sscanf(cmdline, format, &screenNumber);
-
-    if (screenNumber != 0)
-    {
-        STappSetScreen(screenNumber, &STApp);
-        return;
-    }
-
-    cliPrint("Enter screen number");
-}
-
-void cliGetScreen(const char *name, const char *cmdline)
-{
-}
-
-uint16_t isEmpty(const char *string)
-{
-    return (string == NULL || *string == '\0') ? HAL_OK : HAL_ERROR;
-}
 
 void cliHandler(const char *cmdString)
 {
@@ -111,24 +74,11 @@ void cliHandler(const char *cmdString)
         }
     }
 
-    cliPrint("Command not found \r\n");
+    cliPrint("Command not found");
 }
 
 void cliPrint(const char *printString)
 {
-    if (!isEmpty(printString))
-    {
-        return;
-    }
-
-    strncpy((char *)cliRxBuffer, printString, APP_RX_DATA_SIZE);
-
-    while (CDC_Transmit_FS(cliRxBuffer, strlen((char *)cliRxBuffer)) == USBD_BUSY)
-    {
-    }
+    debugPrint(printString);
 }
 
-void cliSetDFU(const char *name, const char *cmdline)
-{
-    rebootToBootloader();
-}

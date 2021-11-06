@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Core/Src/cli.c \
 Core/Src/common.c \
 Core/Src/motor.c \
 Core/Src/main.c \

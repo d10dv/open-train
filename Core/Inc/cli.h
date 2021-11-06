@@ -21,7 +21,10 @@
 #define INC_CLI_CLI_H_
 
 #include "main.h"
-#include "stm32f4xx_hal.h"
+#include "stm32f1xx_hal.h"
+
+#define APP_RX_DATA_SIZE 1000
+#define APP_TX_DATA_SIZE 1000
 
 typedef void cliCommand(const char* name, const char *cmdline);
 
