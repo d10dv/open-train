@@ -9,5 +9,7 @@ void debugPrint(const char *str)
 {
     char transmitStr[80];
     sprintf(transmitStr, "%s \r\n", str);
-    HAL_UART_Transmit(&huart1, (uint8_t *)transmitStr, strlen(transmitStr), 100);
+    while (HAL_UART_Transmit(&huart1, (uint8_t *)transmitStr, strlen(transmitStr), 100) == HAL_BUSY)
+    {
+    };
 }

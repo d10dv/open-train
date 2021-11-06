@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 uint8_t uartRxBuff[100] = {0};
+uint8_t rxBuff = 0;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -51,7 +52,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  HAL_UART_Receive_IT(&huart1, (uint8_t *)&rxBuff, 1);
   /* USER CODE END USART1_Init 2 */
 }
 
@@ -82,10 +83,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef *uartHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* USART1 interrupt Init *
+    /* USART1 interrupt Init */
     HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
-  /* USER CODE BEGIN USART1_MspInit 1 */
+    /* USER CODE BEGIN USART1_MspInit 1 */
 
     /* USER CODE END USART1_MspInit 1 */
   }
@@ -119,11 +120,24 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *uartHandle)
 /* USER CODE BEGIN 1 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+
+  static uint16_t rxBuffPointer = 0;
+
   if (huart == &huart1)
   {
-    // HAL_UART_Transmit(&huart1, "data receive \r\n", 20, 1000);
-    // HAL_UART_Transmit(&huart1, (uint8_t *)uartRxBuff, 1, 1000);
-    // HAL_UART_Receive_IT(&huart1, (uint8_t *)uartRxBuff, 1);
+    // while(HAL_UART_Transmit(&huart1, "data receive \r\n", 20, 1000) == HAL_BUSY) {};
+    if (rxBuff != 0x0A)
+    {
+      uartRxBuff[rxBuffPointer] = rxBuff;
+      rxBuffPointer++;
+    }
+    else
+    {
+      uartRxBuff[rxBuffPointer] = 0;
+      rxBuffPointer = 0;
+    }
+    
+    HAL_UART_Receive_IT(&huart1, (uint8_t *)&rxBuff, 1);
   }
 }
 /* USER CODE END 1 */

@@ -59,8 +59,8 @@ MOTOR_Status motorsInit(void)
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 
-    TIM3->CCR1 = 0;
-    TIM3->CCR2 = 0;
+    motorSetSpeed(0, &Motor1);
+    motorSetSpeed(0, &Motor2);
 
     return MOTOR_OK;
 }
@@ -72,12 +72,13 @@ void motorsHandler()
     motorHandler(&Motor1);
     motorHandler(&Motor2);
 
-    // HAL_Delay(1);
-    // power++;
-    // if (power > 1000)
-    //     power = 0;
-    motorSetSpeed(100, &Motor1);
-    motorSetSpeed(100, &Motor2);
+    HAL_Delay(100);
+    power++;
+    if (power > 1000)
+        power = 0;
+
+    motorSetSpeed(power, &Motor1);
+    motorSetSpeed(power, &Motor2);
 
     // TIM3->CCR1 = (uint16_t)MAX_PWM/2;
     // TIM3->CCR2 = (uint16_t)MAX_PWM/2;

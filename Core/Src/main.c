@@ -101,8 +101,10 @@ int main(void)
 
   motorsInit();
 
-  // uint8_t str = "Init complete \r\n";
-  // HAL_UART_Transmit(&huart1, str, strlen(str), 100);
+  uint8_t str[] = "Init complete";
+  debugPrint(str);
+
+  // HAL_UART_Receive_IT(&huart1, (uint8_t *)uartRxBuff, 1);
 
   /* USER CODE END 2 */
 
@@ -111,7 +113,7 @@ int main(void)
   while (1)
   {
 
-    motorsHandler();
+    // motorsHandler();
 
     /* USER CODE END WHILE */
 
