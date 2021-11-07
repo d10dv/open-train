@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common.h"
+#include "motor.h"
 
 #define ARRAYLEN(x) (sizeof(x) / sizeof((x)[0]))
 #define MAX_COMMAND_LENGHT 32
@@ -39,7 +40,11 @@ uint8_t cliTxBuffer[APP_TX_DATA_SIZE] = {0};
     }
 
 const clicmd_t cliCmdTable[] = {
-    CLI_COMMAND_DEF("status", "get current status", "[name]", cliGetStatus)};
+    CLI_COMMAND_DEF("status", "get current status", "[name]", cliGetStatus),
+    CLI_COMMAND_DEF("get", "get response", "[name]", cliGet),
+    CLI_COMMAND_DEF("set_speed", "set train speed", "[name] [value]", cliSetSpeed),
+    CLI_COMMAND_DEF("start", "start", "[name]", cliStart),
+    CLI_COMMAND_DEF("stop", "stop", "[name]", cliStop)};
 
 void cliGet(const char *cmdName, const char *cmdline)
 {
@@ -55,6 +60,27 @@ void cliGetStatus(const char *cmdName, const char *cmdline)
     return;
 }
 
+void cliStart(const char *cmdName, const char *cmdline)
+{
+    motorSetSpeed(700, &Motor1);
+    motorSetSpeed(700, &Motor2);
+}
+
+void cliStop(const char *cmdName, const char *cmdline)
+{
+    motorSetSpeed(0, &Motor1);
+    motorSetSpeed(0, &Motor2);
+}
+
+void cliSetSpeed(const char *cmdName, const char *cmdline)
+{
+    int params = 0;
+
+    sscanf(cmdline, "%d", &params);
+
+    motorSetSpeed(params, &Motor1);
+    motorSetSpeed(params, &Motor2);
+}
 
 void cliHandler(const char *cmdString)
 {
@@ -81,4 +107,3 @@ void cliPrint(const char *printString)
 {
     debugPrint(printString);
 }
-

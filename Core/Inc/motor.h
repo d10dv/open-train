@@ -28,6 +28,7 @@ typedef struct
     GPIO_TypeDef* motorIn1Port;
     GPIO_TypeDef* motorIn2Port;
     TIM_TypeDef* TIM;
+    uint32_t prevCallTime;
     uint16_t pwmCH;
     uint16_t maxPWM;
     uint16_t minPWM;

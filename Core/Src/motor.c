@@ -21,6 +21,7 @@
 #include "tim.h"
 #include "config.h"
 #include <stdio.h>
+#include "common.h"
 
 MOTOR_HandleTypedef Motor1 = {};
 MOTOR_HandleTypedef Motor2 = {};
@@ -43,6 +44,8 @@ MOTOR_Status motorsInit(void)
     Motor1.minPWM = MIN_PWM;
     Motor1.maxPower = MAX_MOTOR_POWER;
     Motor1.minPower = MIN_MOTOR_POWER;
+    Motor1.rampDuration = 5000;
+    Motor1.prevCallTime = HAL_GetTick();
 
     Motor2.name = "M2";
     Motor2.TIM = TIM3;
@@ -55,6 +58,8 @@ MOTOR_Status motorsInit(void)
     Motor2.minPWM = MIN_PWM;
     Motor2.maxPower = MAX_MOTOR_POWER;
     Motor2.minPower = MIN_MOTOR_POWER;
+    Motor2.rampDuration = 5000;
+    Motor2.prevCallTime = HAL_GetTick();
 
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
@@ -67,29 +72,48 @@ MOTOR_Status motorsInit(void)
 
 void motorsHandler()
 {
-    static power = 0;
+
+    static uint16_t power = 0;
 
     motorHandler(&Motor1);
     motorHandler(&Motor2);
-
-    HAL_Delay(100);
-    power++;
-    if (power > 1000)
-        power = 0;
-
-    motorSetSpeed(power, &Motor1);
-    motorSetSpeed(power, &Motor2);
-
-    // TIM3->CCR1 = (uint16_t)MAX_PWM/2;
-    // TIM3->CCR2 = (uint16_t)MAX_PWM/2;
-
-    // TIM3->CCR1 = (uint16_t)MAX_PWM/2;
-    // TIM3->CCR2 = (uint16_t)MAX_PWM/2;
 }
 
 void motorHandler(MOTOR_HandleTypedef *motor)
 {
-    setPWMsetpoint(getMotorPWMSetpoint(motor->power, motor), motor);
+    uint32_t callPeriod = 0;
+    uint16_t powerInc = 0;
+
+    callPeriod = HAL_GetTick() - motor->prevCallTime;
+
+    if (motor->power != motor->currentPower)
+    {
+        callPeriod = HAL_GetTick() - motor->prevCallTime;
+        powerInc = (uint16_t)(motor->maxPower * callPeriod / motor->rampDuration);
+#ifdef DEBUG
+        char str[80];
+        sprintf(str, "callPeriod : %u | powerInc : %u", callPeriod, powerInc);
+        debugPrint(str);
+#endif
+        if (motor->power > motor->currentPower)
+        {
+            motor->currentPower += powerInc;
+
+            if (motor->power < motor->currentPower) motor->currentPower = motor->power;
+        }
+        if (motor->power < motor->currentPower)
+        {
+            motor->currentPower -= powerInc;
+
+            if (motor->power > motor->currentPower || ((motor->currentPower - powerInc) < 0)) motor->currentPower = motor->power;
+        }
+
+        setPWMsetpoint(getMotorPWMSetpoint(motor->currentPower, motor), motor);
+    }
+    if (callPeriod > 0)
+        motor->prevCallTime = HAL_GetTick();
+
+    // setPWMsetpoint(getMotorPWMSetpoint(motor->power, motor), motor);
 }
 
 MOTOR_Status motorStart(MOTOR_HandleTypedef *motor)
@@ -161,7 +185,7 @@ uint16_t getMotorPWMSetpoint(uint16_t setpoint, MOTOR_HandleTypedef *motor)
 void setPWMsetpoint(uint16_t setpoint, MOTOR_HandleTypedef *motor)
 {
     if (motor->PWM == setpoint)
-        return MOTOR_OK;
+        return;
 
     motor->PWM = setpoint;
 

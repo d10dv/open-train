@@ -39,17 +39,15 @@ void cliHandler(const char *cmdString);
 
 void cliPrint(const char *printString);
 
-void cliGet(const char *cmdName, const char *cmdline);
-
-void cliGetChannels(const char *cmdName, const char *cmdline);
-
 void cliGetStatus(const char *cmdName, const char *cmdline);
 
-void cliSetDFU(const char* name, const char *cmdline);
+void cliGet(const char *cmdName, const char *cmdline);
 
-void cliSetScreen(const char* name, const char *cmdline);
+void cliStart(const char *cmdName, const char *cmdline);
 
-void cliGetScreen(const char* name, const char *cmdline);
+void cliStop(const char *cmdName, const char *cmdline);
+
+void cliSetSpeed(const char *cmdName, const char *cmdline);
 
 uint16_t isEmpty(const char *string);
 

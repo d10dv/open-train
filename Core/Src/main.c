@@ -27,6 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "common.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,7 +105,8 @@ int main(void)
   uint8_t str[] = "Init complete";
   debugPrint(str);
 
-  // HAL_UART_Receive_IT(&huart1, (uint8_t *)uartRxBuff, 1);
+  motorSetSpeed(500, &Motor1);
+  motorSetSpeed(500, &Motor2);
 
   /* USER CODE END 2 */
 
@@ -113,7 +115,11 @@ int main(void)
   while (1)
   {
 
-    // motorsHandler();
+    static uint16_t div = 0;
+    
+    HAL_Delay(10);
+
+    motorsHandler();
 
     /* USER CODE END WHILE */
 
